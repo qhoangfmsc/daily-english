@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface DayChallenge {
     day: number;
@@ -16,22 +16,37 @@ interface DayChallenge {
 }
 
 interface ShareButtonProps {
-    day: DayChallenge;
+    day?: DayChallenge;
+    isOpen?: boolean;
+    onClose?: () => void;
+    defaultDay?: DayChallenge;
 }
 
-export default function ShareButton({ day }: ShareButtonProps) {
-    const [isOpen, setIsOpen] = useState(false);
+interface DiscordField {
+    name: string;
+    value: string;
+    inline?: boolean;
+}
+
+export default function ShareButton({ day, isOpen: externalIsOpen, onClose, defaultDay }: ShareButtonProps) {
+    const [internalIsOpen, setInternalIsOpen] = useState(false);
     const [webhookUrl, setWebhookUrl] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [sendStatus, setSendStatus] = useState<"success" | "error" | null>(null);
+    const [editableDay, setEditableDay] = useState<DayChallenge | null>(null);
 
-    const formatDiscordMessage = () => {
-        // Format message with embed for Discord - single day, daily quiz style
-        interface DiscordField {
-            name: string;
-            value: string;
-            inline?: boolean;
+    // Use external isOpen if provided, otherwise use internal state
+    const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+    const setIsOpen = (value: boolean) => {
+        if (externalIsOpen === undefined) {
+            setInternalIsOpen(value);
+        } else if (!value && onClose) {
+            onClose();
         }
+    };
+
+    const formatDiscordMessage = (dayData: DayChallenge) => {
+        // Format message with embed for Discord - single day, daily quiz style
         const fields: DiscordField[] = [];
 
         fields.push({
@@ -41,8 +56,8 @@ export default function ShareButton({ day }: ShareButtonProps) {
         });
 
         // Words to review
-        if (day.reviewVocabulary && day.reviewVocabulary.length > 0) {
-            const reviewText = day.reviewVocabulary
+        if (dayData.reviewVocabulary && dayData.reviewVocabulary.length > 0) {
+            const reviewText = dayData.reviewVocabulary
                 .map((word) => {
                     const cambridgeUrl = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(word.toLowerCase())}`;
                     return `[${word}](${cambridgeUrl})`;
@@ -63,8 +78,8 @@ export default function ShareButton({ day }: ShareButtonProps) {
         }
 
         // New vocabulary with Cambridge Dictionary links
-        if (day.newVocabulary && day.newVocabulary.length > 0) {
-            const vocabText = day.newVocabulary
+        if (dayData.newVocabulary && dayData.newVocabulary.length > 0) {
+            const vocabText = dayData.newVocabulary
                 .map((v) => {
                     const cambridgeUrl = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(v.word.toLowerCase())}`;
                     return `[**${v.word}**](${cambridgeUrl}) (${v.type}) - ${v.translation}`;
@@ -86,7 +101,7 @@ export default function ShareButton({ day }: ShareButtonProps) {
         // Sentence to translate
         fields.push({
             name: "📝 Sentence to Translate",
-            value: `\`\`\`\n${day.vietnameseText}\n\`\`\``,
+            value: `\`\`\`\n${dayData.vietnameseText}\n\`\`\``,
             inline: false,
         });
 
@@ -100,13 +115,13 @@ export default function ShareButton({ day }: ShareButtonProps) {
         // Sample translation with spoiler
         fields.push({
             name: "💡 Sample Translation (Click to reveal)",
-            value: `||\`\`\`\n${day.englishText}\n\`\`\`||`,
+            value: `||\`\`\`\n${dayData.englishText}\n\`\`\`||`,
             inline: false,
         });
 
         const embed = {
-            title: `📅 Day ${day.day} Challenge`,
-            description: `Translate the following sentence into English using the **${day.tense}** tense!`,
+            title: `📅 Day ${dayData.day} Challenge`,
+            description: `Translate the following sentence into English using the **${dayData.tense}** tense!`,
             color: 0x0C8C5F,
             fields: fields,
             footer: {
@@ -120,20 +135,35 @@ export default function ShareButton({ day }: ShareButtonProps) {
         };
     };
 
-    const generateCurlCommand = () => {
-        const message = formatDiscordMessage();
-        const jsonPayload = JSON.stringify(message);
-        // Escape single quotes and backslashes for shell command
-        const escapedJson = jsonPayload
-            .replace(/\\/g, "\\\\")
-            .replace(/'/g, "'\\''");
-        return `curl -X POST "${webhookUrl || "YOUR_WEBHOOK_URL"}" \\
-  -H "Content-Type: application/json" \\
-  -d '${escapedJson}'`;
-    };
+    // Initialize editable day when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            const dayToUse = defaultDay || day;
+            if (dayToUse) {
+                setEditableDay({
+                    ...dayToUse,
+                    newVocabulary: dayToUse.newVocabulary ? [...dayToUse.newVocabulary] : [],
+                    reviewVocabulary: dayToUse.reviewVocabulary ? [...dayToUse.reviewVocabulary] : [],
+                });
+            } else {
+                // Create default empty day if no day provided
+                setEditableDay({
+                    day: 1,
+                    tense: "",
+                    vietnameseText: "",
+                    englishText: "",
+                    newVocabulary: [],
+                    reviewVocabulary: [],
+                });
+            }
+        } else {
+            setEditableDay(null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen, defaultDay]);
 
     const handleSend = async () => {
-        if (!webhookUrl.trim()) {
+        if (!webhookUrl.trim() || !editableDay) {
             setSendStatus("error");
             setTimeout(() => setSendStatus(null), 3000);
             return;
@@ -143,7 +173,9 @@ export default function ShareButton({ day }: ShareButtonProps) {
         setSendStatus(null);
 
         try {
-            const message = formatDiscordMessage();
+            // Format message from editableDay
+            const message = formatDiscordMessage(editableDay);
+
             const response = await fetch(webhookUrl, {
                 method: "POST",
                 headers: {
@@ -169,32 +201,86 @@ export default function ShareButton({ day }: ShareButtonProps) {
         }
     };
 
-    const copyCurlCommand = () => {
-        const curlCommand = generateCurlCommand();
-        navigator.clipboard.writeText(curlCommand);
+    const updateVocabulary = (index: number, field: "word" | "type" | "translation", value: string) => {
+        if (!editableDay) return;
+        const newVocabulary = [...editableDay.newVocabulary];
+        newVocabulary[index] = { ...newVocabulary[index], [field]: value };
+        setEditableDay({
+            ...editableDay,
+            newVocabulary: newVocabulary,
+        });
+    };
+
+    const addVocabulary = () => {
+        if (!editableDay) return;
+        setEditableDay({
+            ...editableDay,
+            newVocabulary: [
+                ...editableDay.newVocabulary,
+                { word: "", type: "", translation: "" },
+            ],
+        });
+    };
+
+    const removeVocabulary = (index: number) => {
+        if (!editableDay) return;
+        const newVocabulary = editableDay.newVocabulary.filter((_, i) => i !== index);
+        setEditableDay({
+            ...editableDay,
+            newVocabulary: newVocabulary,
+        });
+    };
+
+    const updateReviewWord = (index: number, value: string) => {
+        if (!editableDay) return;
+        const newReviewVocabulary = [...editableDay.reviewVocabulary];
+        newReviewVocabulary[index] = value;
+        setEditableDay({
+            ...editableDay,
+            reviewVocabulary: newReviewVocabulary,
+        });
+    };
+
+    const addReviewWord = () => {
+        if (!editableDay) return;
+        setEditableDay({
+            ...editableDay,
+            reviewVocabulary: [...editableDay.reviewVocabulary, ""],
+        });
+    };
+
+    const removeReviewWord = (index: number) => {
+        if (!editableDay) return;
+        const newReviewVocabulary = editableDay.reviewVocabulary.filter((_, i) => i !== index);
+        setEditableDay({
+            ...editableDay,
+            reviewVocabulary: newReviewVocabulary,
+        });
     };
 
     return (
         <>
-            <button
-                onClick={() => setIsOpen(true)}
-                className="p-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200"
-                title="Share to Discord"
-            >
-                <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+            {day && (
+                <button
+                    onClick={() => setIsOpen(true)}
+                    className="p-2 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200"
+                    title="Share to Discord"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                </svg>
-            </button>
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                        />
+                    </svg>
+                </button>
+            )}
 
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm">
@@ -246,23 +332,197 @@ export default function ShareButton({ day }: ShareButtonProps) {
                                 </p>
                             </div>
 
-                            {/* Curl Command */}
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                        Curl Command
-                                    </label>
-                                    <button
-                                        onClick={copyCurlCommand}
-                                        className="text-xs px-3 py-1 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-md text-zinc-700 dark:text-zinc-300 transition-colors"
-                                    >
-                                        Copy
-                                    </button>
+                            {/* Editable Day Data */}
+                            {editableDay && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                                            Chỉnh sửa dữ liệu thử thách
+                                        </label>
+                                    </div>
+
+                                    {/* Day Number */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                            Day
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={editableDay.day}
+                                            onChange={(e) =>
+                                                setEditableDay({
+                                                    ...editableDay,
+                                                    day: parseInt(e.target.value) || 0,
+                                                })
+                                            }
+                                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    {/* Tense */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                            Tense
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={editableDay.tense}
+                                            onChange={(e) =>
+                                                setEditableDay({
+                                                    ...editableDay,
+                                                    tense: e.target.value,
+                                                })
+                                            }
+                                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    {/* Vietnamese Text */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                            Vietnamese Text
+                                        </label>
+                                        <textarea
+                                            value={editableDay.vietnameseText}
+                                            onChange={(e) =>
+                                                setEditableDay({
+                                                    ...editableDay,
+                                                    vietnameseText: e.target.value,
+                                                })
+                                            }
+                                            rows={3}
+                                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+                                        />
+                                    </div>
+
+                                    {/* English Text */}
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                            English Text
+                                        </label>
+                                        <textarea
+                                            value={editableDay.englishText}
+                                            onChange={(e) =>
+                                                setEditableDay({
+                                                    ...editableDay,
+                                                    englishText: e.target.value,
+                                                })
+                                            }
+                                            rows={3}
+                                            className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-y"
+                                        />
+                                    </div>
+
+                                    {/* New Vocabulary */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                                New Vocabulary
+                                            </label>
+                                            <button
+                                                onClick={addVocabulary}
+                                                className="text-xs px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 rounded-md text-indigo-700 dark:text-indigo-300 transition-colors"
+                                            >
+                                                + Thêm từ vựng
+                                            </button>
+                                        </div>
+                                        {editableDay.newVocabulary.map((vocab, index) => (
+                                            <div
+                                                key={index}
+                                                className="p-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 space-y-2"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                                        Từ vựng {index + 1}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => removeVocabulary(index)}
+                                                        className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded text-red-700 dark:text-red-300 transition-colors"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Word"
+                                                    value={vocab.word}
+                                                    onChange={(e) =>
+                                                        updateVocabulary(index, "word", e.target.value)
+                                                    }
+                                                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Type (e.g., noun, verb)"
+                                                    value={vocab.type}
+                                                    onChange={(e) =>
+                                                        updateVocabulary(index, "type", e.target.value)
+                                                    }
+                                                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Translation"
+                                                    value={vocab.translation}
+                                                    onChange={(e) =>
+                                                        updateVocabulary(index, "translation", e.target.value)
+                                                    }
+                                                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Review Vocabulary */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                                Review Vocabulary
+                                            </label>
+                                            <button
+                                                onClick={addReviewWord}
+                                                className="text-xs px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 rounded-md text-indigo-700 dark:text-indigo-300 transition-colors"
+                                            >
+                                                + Thêm từ
+                                            </button>
+                                        </div>
+                                        {editableDay.reviewVocabulary.map((word, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center gap-2"
+                                            >
+                                                <input
+                                                    type="text"
+                                                    placeholder="Review word"
+                                                    value={word}
+                                                    onChange={(e) =>
+                                                        updateReviewWord(index, e.target.value)
+                                                    }
+                                                    className="flex-1 px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                />
+                                                <button
+                                                    onClick={() => removeReviewWord(index)}
+                                                    className="px-2 py-2 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded text-red-700 dark:text-red-300 transition-colors"
+                                                >
+                                                    <svg
+                                                        className="w-4 h-4"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M6 18L18 6M6 6l12 12"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <pre className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-900 dark:text-zinc-50 text-wrap">
-                                    <code>{generateCurlCommand()}</code>
-                                </pre>
-                            </div>
+                            )}
 
                             {/* Status Message */}
                             {sendStatus && (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import ChallengeList from "./component/ChallengeList";
 import ExportButton from "./component/ExportButton";
 import MockupData from "./component/MockupData";
+import ShareButton from "./component/ShareButton";
 
 interface DayChallenge {
   day: number;
@@ -29,6 +30,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [challengeData, setChallengeData] = useState<ChallengeData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const handleCreateSchedule = async () => {
     setLoading(true);
@@ -71,13 +73,21 @@ export default function Home() {
 
         <div className="flex flex-col gap-4 w-full">
           {!challengeData && (
-            <button
-              onClick={handleCreateSchedule}
-              disabled={loading}
-              className="flex h-12 items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Đang tạo..." : "Tạo thử thách 15 ngày"}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <button
+                onClick={handleCreateSchedule}
+                disabled={loading}
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Đang tạo..." : "Tạo thử thách 15 ngày"}
+              </button>
+              <button
+                onClick={() => setIsShareModalOpen(true)}
+                className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-foreground px-5 text-foreground transition-colors hover:bg-foreground hover:text-background dark:border-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-400 dark:hover:text-black"
+              >
+                Tạo thử thách đơn
+              </button>
+            </div>
           )}
 
           {error && (
@@ -99,11 +109,31 @@ export default function Home() {
                 >
                   {loading ? "Đang tạo..." : "Tạo thử thách mới"}
                 </button>
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-foreground px-5 text-foreground transition-colors hover:bg-foreground hover:text-background dark:border-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-400 dark:hover:text-black"
+                >
+                  Tạo thử thách đơn
+                </button>
                 <ExportButton days={challengeData.data.days} />
               </div>
               <ChallengeList days={challengeData.data.days} />
             </>
           )}
+
+          {/* Share Modal for creating single challenge */}
+          <ShareButton
+            isOpen={isShareModalOpen}
+            onClose={() => setIsShareModalOpen(false)}
+            defaultDay={{
+              day: 1,
+              tense: "",
+              vietnameseText: "",
+              englishText: "",
+              newVocabulary: [],
+              reviewVocabulary: [],
+            }}
+          />
         </div>
       </main>
     </div>
