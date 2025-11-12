@@ -43,6 +43,10 @@ const WEBHOOK_CONFIGS: WebhookConfig[] = [
         name: "Test 2 Ori",
         url: "https://discord.com/api/webhooks/1420310534406017056/roWASFuVz_NCi1lXQq0J3jKSCrFqhrrov65o2b4sA-YqGVWtlPghosbtPOUox9MhG1y4",
     },
+    {
+        name: "Vietnix Learning English",
+        url: "https://discord.com/api/webhooks/1438019727283851304/88kA1Hiv_Hg6v8pjWOsvRMHSUNHJG3mzTSfm18muySTpLndF8sSVW8XsCdiDVr4Q4Kzx"
+    }
 ];
 
 export default function ShareButton({ day, isOpen: externalIsOpen, onClose }: ShareButtonProps) {
@@ -322,8 +326,8 @@ export default function ShareButton({ day, isOpen: externalIsOpen, onClose }: Sh
                                 Share to Discord
                             </h2>
                             <div className="flex items-center gap-3">
-                                <GenerateButton 
-                                    onGenerate={handleGenerateData} 
+                                <GenerateButton
+                                    onGenerate={handleGenerateData}
                                     showStatus={false}
                                 />
                                 <button
@@ -374,8 +378,8 @@ export default function ShareButton({ day, isOpen: externalIsOpen, onClose }: Sh
                                                 key={index}
                                                 onClick={() => setWebhookUrl(config.url)}
                                                 className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${webhookUrl === config.url
-                                                        ? "bg-indigo-600 text-white shadow-md"
-                                                        : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700"
+                                                    ? "bg-indigo-600 text-white shadow-md"
+                                                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-300 dark:border-zinc-700"
                                                     }`}
                                                 title={`Click to use: ${config.name}`}
                                             >
@@ -501,15 +505,24 @@ export default function ShareButton({ day, isOpen: externalIsOpen, onClose }: Sh
                                                     }
                                                     className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                                 />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Type (e.g., noun, verb)"
+                                                <select
                                                     value={vocab.type}
                                                     onChange={(e) =>
                                                         updateVocabulary(index, "type", e.target.value)
                                                     }
-                                                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                                />
+                                                    className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                >
+                                                    <option value="noun">Noun</option>
+                                                    <option value="verb">Verb</option>
+                                                    <option value="adjective">Adjective</option>
+                                                    <option value="adverb">Adverb</option>
+                                                    <option value="pronoun">Pronoun</option>
+                                                    <option value="preposition">Preposition</option>
+                                                    <option value="conjunction">Conjunction</option>
+                                                    <option value="interjection">Interjection</option>
+                                                    <option value="article">Article</option>
+                                                    <option value="determiner">Determiner</option>
+                                                </select>
                                                 <input
                                                     type="text"
                                                     placeholder="Translation"
