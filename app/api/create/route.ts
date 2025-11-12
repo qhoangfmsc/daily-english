@@ -17,7 +17,7 @@ const LessonSchema = z.object({
 
 export async function POST() {
   try {
-    const apiKey = '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';
+    const apiKey = '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';
     if (!apiKey) {
       return NextResponse.json(
         { error: "OPENROUTER_API_KEY không được cấu hình" },
