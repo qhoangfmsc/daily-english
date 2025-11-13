@@ -11,7 +11,7 @@ export const LessonSchema = z.object({
     type: z.string().describe("The type of the word (e.g. noun, verb, adjective, adverb, preposition, conjunction, interjection)"),
     translation: z.string().describe("The translation of the word in Vietnamese"),
   })).describe("List of 3 new vocabulary words. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. Verbs must be in infinitive form (base form)"),
-  reviewVocabulary: z.array(z.string()).optional().describe("List of old vocabulary to review (optional, up to 3 words). If a word is a verb, use the infinitive form (base form), not conjugated forms"),
+  reviewVocabulary: z.array(z.string()).describe("List of old vocabulary to review (optional, up to 3 words, can be empty array). If a word is a verb, use the infinitive form (base form), not conjugated forms"),
 });
 
 // API Configuration
@@ -94,10 +94,10 @@ export const JSON_SCHEMA = {
       items: {
         type: "string",
       },
-      description: "List of old vocabulary to review (optional, up to 3 words). If a word is a verb, use the infinitive form (base form), not conjugated forms",
+      description: "List of old vocabulary to review (optional, up to 3 words, can be empty array if no review words). If a word is a verb, use the infinitive form (base form), not conjugated forms",
     },
   },
-  required: ["goal", "tense", "vietnameseText", "englishText", "newVocabulary"],
+  required: ["goal", "tense", "vietnameseText", "englishText", "newVocabulary", "reviewVocabulary"],
   additionalProperties: false,
 } as const;
 
