@@ -17,7 +17,7 @@ app/
 │   │   ├── route.ts              # Route handler
 │   │   └── config.ts             # Configuration (nếu cần)
 │
-└── (public)/                     # Mọi module và trang đều được viết trong đây
+└── (tools)/                     # Mọi module và trang đều được viết trong đây
     ├── layout.tsx                # Layout chung cho các private routes
     │
     ├── translation-challenge/    # Module: Translation Challenge

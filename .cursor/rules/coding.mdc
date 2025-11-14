@@ -4,6 +4,11 @@ alwaysApply: true
 
 # Coding style
 
+## Design style
+
+- Các màu sắc dạng gradient nhìn đẹp mắt
+- Theo phong cách tối giản hiện đại
+
 ## Thứ tự viết code trong Component
 
 Khi viết React component, phải tuân theo thứ tự sau:
