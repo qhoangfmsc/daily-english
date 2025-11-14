@@ -1,7 +1,7 @@
 {
     "crons": [{
       "path": "/api/cron",
-      "schedule": "42 9 * * *",
+      "schedule": "45 9 * * *",
       "timezone": "Asia/Ho_Chi_Minh"
     }]
   }
