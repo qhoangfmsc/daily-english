@@ -14,6 +14,10 @@ export const Sidebar = () => {
       href: "/",
     },
     {
+      label: "Thông báo",
+      href: "/notification",
+    },
+    {
       label: "Thử thách dịch thuật",
       href: "/translation-challenge",
     },
