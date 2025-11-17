@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import { createChallenge } from "../create/service";
 
 import { DISCORD_WEBHOOK_URLS } from "./config";
+import { getTotalWorkingDays } from "../../cron/route";
 
 const formatChallengeToDiscord = (lesson: Lesson): DiscordMessage => {
   const vocabText =
@@ -77,7 +78,7 @@ const formatChallengeToDiscord = (lesson: Lesson): DiscordMessage => {
     content: "# 🎯 **DAILY CHALLENGE**",
     embeds: [
       {
-        title: "📅 Daily Challenge",
+        title: `📅 Day ${getTotalWorkingDays(new Date("2025-11-13"), new Date())} Challenge`,
         description: `Write a short paragraph every day with the intention of practicing regularly`,
         color: 0x0c8c5f,
         fields,
