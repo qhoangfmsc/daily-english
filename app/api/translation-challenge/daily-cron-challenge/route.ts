@@ -6,42 +6,9 @@ import type {
 
 import { NextResponse } from "next/server";
 
+import { createChallenge } from "../create/service";
+
 import { DISCORD_WEBHOOK_URLS } from "./config";
-
-const getApiUrl = () => {
-  let baseUrl = process.env.NEXT_PUBLIC_APP_URL;
-
-  if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_APP_URL is not set");
-  }
-
-  return `${baseUrl}/api/translation-challenge/create`;
-};
-
-const createChallenge = async (): Promise<Lesson> => {
-  const response = await fetch(getApiUrl(), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      error: response.statusText,
-    }));
-
-    throw new Error(
-      `Error creating challenge: ${response.statusText}. ${JSON.stringify(errorData)}`,
-    );
-  }
-
-  const result = await response.json();
-
-  if (!result.success || !result.data) {
-    throw new Error(result.error || "Không có dữ liệu challenge được trả về");
-  }
-
-  return result.data;
-};
 
 const formatChallengeToDiscord = (lesson: Lesson): DiscordMessage => {
   const vocabText =
@@ -125,7 +92,7 @@ const formatChallengeToDiscord = (lesson: Lesson): DiscordMessage => {
 const sendToDiscord = async (
   webhookUrl: string,
   message: DiscordMessage,
-): Promise<{ success: boolean; error?: string }> => {
+): Promise<{ url: string; success: boolean; error?: string }> => {
   try {
     const response = await fetch(webhookUrl, {
       method: "POST",
@@ -144,17 +111,19 @@ const sendToDiscord = async (
       });
 
       return {
+        url: webhookUrl,
         success: false,
         error: `Discord API error: ${response.status} ${response.statusText}`,
       };
     }
 
-    return { success: true };
+    return { url: webhookUrl, success: true };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Error sending to Discord:", error);
 
     return {
+      url: webhookUrl,
       success: false,
       error:
         error instanceof Error
@@ -162,20 +131,6 @@ const sendToDiscord = async (
           : "Có lỗi xảy ra khi gửi đến Discord",
     };
   }
-};
-
-const sendToMultipleDiscords = async (
-  webhookUrls: string[],
-  message: DiscordMessage,
-): Promise<Array<{ url: string; success: boolean; error?: string }>> => {
-  const results = await Promise.all(
-    webhookUrls.map(async (url) => ({
-      url,
-      ...(await sendToDiscord(url, message)),
-    })),
-  );
-
-  return results;
 };
 
 export async function GET() {
@@ -193,9 +148,8 @@ export async function GET() {
       });
     }
 
-    const discordResults = await sendToMultipleDiscords(
-      DISCORD_WEBHOOK_URLS,
-      discordMessage,
+    const discordResults = await Promise.all(
+      DISCORD_WEBHOOK_URLS.map((url) => sendToDiscord(url, discordMessage)),
     );
 
     const successCount = discordResults.filter((r) => r.success).length;
