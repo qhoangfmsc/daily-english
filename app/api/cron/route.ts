@@ -37,11 +37,7 @@ Tổng số ngày đã học: **${workingDays} ngày**`;
 
 export async function GET() {
   try {
-    const message = createMessage(
-      START_DATE,
-      getTotalWorkingDays(START_DATE, new Date())
-    );
-
+    const message = createMessage(START_DATE, getTotalWorkingDays(START_DATE, new Date()));
     const response = await fetch(DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -49,12 +45,12 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ success: false, error: "Failed to send message to Discord" });
+      return NextResponse.json({ success: false, error: `Error: ${response.statusText}` }, { status: response.status });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to send message to Discord" });
+    return NextResponse.json({ success: false, error: `Error: ${error instanceof Error ? error.message : "Unknown"}` }, { status: 500 });
   }
 }
 
