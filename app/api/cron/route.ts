@@ -4,7 +4,7 @@ const DISCORD_WEBHOOK_URL =
   "https://discord.com/api/webhooks/1402137172483768332/8irZRAm0m8XwI-QZ5JyqhsAYs5xA9uju5nVFclfYah1M2vJJpajrtgnJdxwpsIsSDYIe";
 const START_DATE = new Date("2025-11-13");
 
-export function getTotalWorkingDays(startDate: Date, today: Date) {
+function getTotalWorkingDays(startDate: Date, today: Date) {
   const normalize = (d: Date) => ((d = new Date(d)), d.setHours(0, 0, 0, 0), d);
   const start = normalize(startDate);
   const end = normalize(today);

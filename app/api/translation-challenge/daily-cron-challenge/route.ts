@@ -9,7 +9,26 @@ import { NextResponse } from "next/server";
 import { createChallenge } from "../create/service";
 
 import { DISCORD_WEBHOOK_URLS } from "./config";
-import { getTotalWorkingDays } from "../../cron/route";
+
+function getTotalWorkingDays(startDate: Date, today: Date) {
+  const normalize = (d: Date) => ((d = new Date(d)), d.setHours(0, 0, 0, 0), d);
+  const start = normalize(startDate);
+  const end = normalize(today);
+
+  let count = 0;
+
+  for (
+    let current = new Date(start);
+    current <= end;
+    current.setDate(current.getDate() + 1)
+  ) {
+    const day = current.getDay();
+
+    if (day !== 0 && day !== 6) count++;
+  }
+
+  return count;
+}
 
 const formatChallengeToDiscord = (lesson: Lesson): DiscordMessage => {
   const vocabText =
