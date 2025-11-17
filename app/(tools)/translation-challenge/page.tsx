@@ -1,14 +1,17 @@
 "use client";
 
+import type { Lesson, Schedule, ApiResponse } from "./common/type";
+
 import { useState } from "react";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
 import { Alert } from "@heroui/alert";
-import { title } from "@/components/primitives";
+
 import { SingleChallengeDisplay } from "./components/SingleChallengeDisplay";
 import { Challenge15DaysDisplay } from "./components/Challenge15DaysDisplay";
-import type { Lesson, Schedule, ApiResponse } from "./common/type";
+
+import { title } from "@/components/primitives";
 
 type ViewState = "selection" | "loading" | "single" | "schedule" | "error";
 
@@ -32,14 +35,19 @@ export default function TranslationChallenge() {
       const result: ApiResponse<Schedule> = await response.json();
 
       if (!response.ok || !result.success || !result.data) {
-        throw new Error(result.error || "Có lỗi xảy ra khi tạo thử thách 15 ngày");
+        throw new Error(
+          result.error || "Có lỗi xảy ra khi tạo thử thách 15 ngày",
+        );
       }
 
       setSchedule(result.data);
       setViewState("schedule");
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Có lỗi xảy ra khi tạo thử thách 15 ngày";
+        err instanceof Error
+          ? err.message
+          : "Có lỗi xảy ra khi tạo thử thách 15 ngày";
+
       setError(errorMessage);
       setViewState("error");
     } finally {
@@ -67,7 +75,10 @@ export default function TranslationChallenge() {
       setViewState("single");
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Có lỗi xảy ra khi tạo thử thách đơn";
+        err instanceof Error
+          ? err.message
+          : "Có lỗi xảy ra khi tạo thử thách đơn";
+
       setError(errorMessage);
       setViewState("error");
     } finally {
@@ -89,7 +100,7 @@ export default function TranslationChallenge() {
           <h1 className={title({ size: "sm" })}>Thử thách dịch thuật</h1>
         </div>
         <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <Spinner size="lg" color="primary" />
+          <Spinner color="primary" size="lg" />
           <p className="text-default-500">Đang tạo thử thách...</p>
         </div>
       </div>
@@ -105,7 +116,11 @@ export default function TranslationChallenge() {
         <Alert color="danger" variant="flat">
           {error || "Có lỗi xảy ra"}
         </Alert>
-        <Button className="w-fit" color="primary" onPress={handleBackToSelection}>
+        <Button
+          className="w-fit"
+          color="primary"
+          onPress={handleBackToSelection}
+        >
           Quay lại
         </Button>
       </div>
@@ -117,7 +132,11 @@ export default function TranslationChallenge() {
       <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">
           <h1 className={title({ size: "lg" })}>Thử thách dịch thuật</h1>
-          <Button color="default" variant="bordered" onPress={handleBackToSelection}>
+          <Button
+            color="default"
+            variant="bordered"
+            onPress={handleBackToSelection}
+          >
             Tạo mới
           </Button>
         </div>
@@ -131,7 +150,11 @@ export default function TranslationChallenge() {
       <div className="flex flex-col gap-8">
         <div className="flex items-center justify-between">
           <h1 className={title({ size: "lg" })}>Thử thách dịch thuật</h1>
-          <Button color="default" variant="bordered" onPress={handleBackToSelection}>
+          <Button
+            color="default"
+            variant="bordered"
+            onPress={handleBackToSelection}
+          >
             Tạo mới
           </Button>
         </div>
@@ -158,12 +181,12 @@ export default function TranslationChallenge() {
                 Tạo một chuỗi thử thách dịch thuật kéo dài 15 ngày liên tiếp
               </p>
               <Button
-                color="primary"
-                size="sm"
                 className="w-full mt-2"
-                onPress={handleCreate15DaysChallenge}
-                isLoading={isLoading}
+                color="primary"
                 isDisabled={isLoading}
+                isLoading={isLoading}
+                size="sm"
+                onPress={handleCreate15DaysChallenge}
               >
                 Tạo thử thách
               </Button>
@@ -179,12 +202,12 @@ export default function TranslationChallenge() {
                 Tạo một thử thách dịch thuật đơn lẻ để luyện tập
               </p>
               <Button
-                color="secondary"
-                size="sm"
                 className="w-full mt-2"
-                onPress={handleCreateSingleChallenge}
-                isLoading={isLoading}
+                color="secondary"
                 isDisabled={isLoading}
+                isLoading={isLoading}
+                size="sm"
+                onPress={handleCreateSingleChallenge}
               >
                 Tạo thử thách
               </Button>
@@ -195,4 +218,3 @@ export default function TranslationChallenge() {
     </div>
   );
 }
-

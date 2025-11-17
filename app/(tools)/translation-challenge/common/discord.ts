@@ -40,4 +40,3 @@ export interface DiscordMessage {
   content: string;
   embeds: DiscordEmbed[];
 }
-

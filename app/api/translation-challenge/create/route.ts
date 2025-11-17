@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import {
   LessonSchema,
   API_CONFIG,
@@ -10,10 +11,11 @@ import {
 export async function POST() {
   try {
     const apiKey = process.env.OPENROUTER_API_KEY;
+
     if (!apiKey) {
       return NextResponse.json(
         { error: "OPENROUTER_API_KEY không được cấu hình" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -22,7 +24,8 @@ export async function POST() {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+        "HTTP-Referer":
+          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
         "X-Title": "30 Days English",
         "Content-Type": "application/json",
       },
@@ -46,22 +49,25 @@ export async function POST() {
 
     if (!response.ok) {
       let errorData;
+
       try {
         errorData = await response.json();
       } catch {
         errorData = await response.text();
       }
+      // eslint-disable-next-line no-console
       console.error("OpenRouter API error:", {
         status: response.status,
         statusText: response.statusText,
         error: errorData,
       });
+
       return NextResponse.json(
-        { 
+        {
           error: `OpenRouter API error: ${response.status} ${response.statusText}`,
-          details: errorData 
+          details: errorData,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -71,7 +77,7 @@ export async function POST() {
     if (!content) {
       return NextResponse.json(
         { error: "Không có dữ liệu từ API" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -84,14 +90,17 @@ export async function POST() {
       data: validatedData,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error creating lesson:", error);
+
     return NextResponse.json(
       {
         error:
-          error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo bài học",
+          error instanceof Error
+            ? error.message
+            : "Có lỗi xảy ra khi tạo bài học",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-

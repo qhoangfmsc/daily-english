@@ -2,14 +2,18 @@
 
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
+
 import { Lesson } from "../common/type";
+
 import { DiscordSendButton } from "./DiscordSendButton";
 
 interface SingleChallengeDisplayProps {
   lesson: Lesson;
 }
 
-export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) => {
+export const SingleChallengeDisplay = ({
+  lesson,
+}: SingleChallengeDisplayProps) => {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -19,12 +23,14 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
             📚
           </div>
           <div className="flex flex-col gap-2">
-            <div className="text-2xl font-bold text-foreground">Bài học dịch thuật</div>
+            <div className="text-2xl font-bold text-foreground">
+              Bài học dịch thuật
+            </div>
             <Chip
-              color="primary"
-              variant="flat"
-              size="lg"
               className="font-semibold"
+              color="primary"
+              size="lg"
+              variant="flat"
             >
               {lesson.tense}
             </Chip>
@@ -83,7 +89,12 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
             <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
               Từ vựng mới
             </h3>
-            <Chip size="sm" variant="flat" color="success" className="font-semibold">
+            <Chip
+              className="font-semibold"
+              color="success"
+              size="sm"
+              variant="flat"
+            >
               {lesson.newVocabulary.length} từ
             </Chip>
           </div>
@@ -100,10 +111,10 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
                         {vocab.word}
                       </span>
                       <Chip
+                        className="font-semibold"
+                        color="secondary"
                         size="sm"
                         variant="flat"
-                        color="secondary"
-                        className="font-semibold"
                       >
                         {vocab.type}
                       </Chip>
@@ -128,7 +139,12 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
               <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                 Từ vựng ôn tập
               </h3>
-              <Chip size="sm" variant="flat" color="warning" className="font-semibold">
+              <Chip
+                className="font-semibold"
+                color="warning"
+                size="sm"
+                variant="flat"
+              >
                 {lesson.reviewVocabulary.length} từ
               </Chip>
             </div>
@@ -136,9 +152,9 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
               {lesson.reviewVocabulary.map((word, index) => (
                 <Chip
                   key={index}
-                  variant="bordered"
-                  size="sm"
                   className="font-medium"
+                  size="sm"
+                  variant="bordered"
                 >
                   {word}
                 </Chip>
@@ -150,4 +166,3 @@ export const SingleChallengeDisplay = ({ lesson }: SingleChallengeDisplayProps) 
     </div>
   );
 };
-

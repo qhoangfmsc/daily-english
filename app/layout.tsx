@@ -4,6 +4,7 @@ import { Inter as FontSans } from "next/font/google";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
+
 import { Sidebar } from "@/components/sidebar";
 
 const fontSans = FontSans({
@@ -32,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="light">
+    <html className="light" lang="en">
       <head />
       <body
         className={clsx(

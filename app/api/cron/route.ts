@@ -10,14 +10,17 @@ function getTotalWorkingDays(startDate: Date, today: Date) {
   const end = normalize(today);
 
   let count = 0;
+
   for (
     let current = new Date(start);
     current <= end;
     current.setDate(current.getDate() + 1)
   ) {
     const day = current.getDay();
+
     if (day !== 0 && day !== 6) count++;
   }
+
   return count;
 }
 
@@ -35,9 +38,13 @@ Hôm nay: ${formatDate(new Date())}
 Tổng số ngày đã học: **${workingDays} ngày**`;
 }
 
+// API này để test cron job của Vercel
 export async function GET() {
   try {
-    const message = createMessage(START_DATE, getTotalWorkingDays(START_DATE, new Date()));
+    const message = createMessage(
+      START_DATE,
+      getTotalWorkingDays(START_DATE, new Date()),
+    );
     const response = await fetch(DISCORD_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,12 +52,21 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ success: false, error: `Error: ${response.statusText}` }, { status: response.status });
+      return NextResponse.json(
+        { success: false, error: `Error: ${response.statusText}` },
+        { status: response.status },
+      );
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ success: false, error: `Error: ${error instanceof Error ? error.message : "Unknown"}` }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Error: ${error instanceof Error ? error.message : "Unknown"}`,
+      },
+      { status: 500 },
+    );
   }
 }
 

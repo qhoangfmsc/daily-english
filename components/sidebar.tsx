@@ -26,7 +26,7 @@ export const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-divider bg-background flex flex-col">
       <div className="flex items-center justify-between p-6 border-b border-divider">
-        <Link href="/" className="flex items-center gap-2">
+        <Link className="flex items-center gap-2" href="/">
           <span className="font-bold text-xl">Daily English</span>
         </Link>
       </div>
@@ -35,17 +35,18 @@ export const Sidebar = () => {
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
+
             return (
               <li key={item.href}>
                 <Button
                   as={Link}
-                  href={item.href}
-                  variant={isActive ? "solid" : "light"}
-                  color={isActive ? "primary" : "default"}
                   className={clsx(
                     "w-full justify-start",
-                    isActive && "font-semibold"
+                    isActive && "font-semibold",
                   )}
+                  color={isActive ? "primary" : "default"}
+                  href={item.href}
+                  variant={isActive ? "solid" : "light"}
                 >
                   {item.label}
                 </Button>
@@ -57,4 +58,3 @@ export const Sidebar = () => {
     </aside>
   );
 };
-

@@ -2,21 +2,53 @@ import { z } from "zod";
 
 // Schema cho structured output - cấu trúc đơn giản
 export const ScheduleSchema = z.object({
-  days: z.array(
-    z.object({
-      day: z.number().describe("Day number from 1 to 15"),
-      goal: z.string().describe("Goal of the day"),
-      tense: z.string().describe("Tense used (or 'Mixed Tenses' if multiple)"),
-      vietnameseText: z.string().describe("Vietnamese short paragraph (20-40 words) to translate. Must naturally include the Vietnamese translations corresponding to all words in newVocabulary"),
-      englishText: z.string().describe("English short paragraph (20-40 words). Must naturally include all words from newVocabulary within the paragraph"),
-      newVocabulary: z.array(z.object({
-        word: z.string().describe("A word from the englishText paragraph that students will learn. If the word is a verb, use the infinitive form (base form), not conjugated forms. For example, if the paragraph contains 'played', use 'play'"),
-        type: z.string().describe("The type of the word (e.g. noun, verb, adjective, adverb, preposition, conjunction, interjection)"),
-        translation: z.string().describe("The translation of the word in Vietnamese"),
-      })).describe("List of 3 new vocabulary words per day. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. Verbs must be in infinitive form (base form)"),
-      reviewVocabulary: z.array(z.string()).describe("List of old vocabulary to review (3 words per day). If a word is a verb, use the infinitive form (base form), not conjugated forms"),
-    })
-  ).describe("List of 15 days challenge"),
+  days: z
+    .array(
+      z.object({
+        day: z.number().describe("Day number from 1 to 15"),
+        goal: z.string().describe("Goal of the day"),
+        tense: z
+          .string()
+          .describe("Tense used (or 'Mixed Tenses' if multiple)"),
+        vietnameseText: z
+          .string()
+          .describe(
+            "Vietnamese short paragraph (20-40 words) to translate. Must naturally include the Vietnamese translations corresponding to all words in newVocabulary",
+          ),
+        englishText: z
+          .string()
+          .describe(
+            "English short paragraph (20-40 words). Must naturally include all words from newVocabulary within the paragraph",
+          ),
+        newVocabulary: z
+          .array(
+            z.object({
+              word: z
+                .string()
+                .describe(
+                  "A word from the englishText paragraph that students will learn. If the word is a verb, use the infinitive form (base form), not conjugated forms. For example, if the paragraph contains 'played', use 'play'",
+                ),
+              type: z
+                .string()
+                .describe(
+                  "The type of the word (e.g. noun, verb, adjective, adverb, preposition, conjunction, interjection)",
+                ),
+              translation: z
+                .string()
+                .describe("The translation of the word in Vietnamese"),
+            }),
+          )
+          .describe(
+            "List of 3 new vocabulary words per day. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. Verbs must be in infinitive form (base form)",
+          ),
+        reviewVocabulary: z
+          .array(z.string())
+          .describe(
+            "List of old vocabulary to review (3 words per day). If a word is a verb, use the infinitive form (base form), not conjugated forms",
+          ),
+      }),
+    )
+    .describe("List of 15 days challenge"),
 });
 
 // API Configuration
@@ -28,7 +60,8 @@ export const API_CONFIG = {
 } as const;
 
 // System Prompt
-export const SYSTEM_PROMPT = "You are a English teacher creating a 15-day challenge to practice translating paragraphs at IELTS band 5.0.";
+export const SYSTEM_PROMPT =
+  "You are a English teacher creating a 15-day challenge to practice translating paragraphs at IELTS band 5.0.";
 
 // User Prompt
 export const USER_PROMPT = `Create a 15-day Vietnamese to English translation course for IELTS 5.0.
@@ -79,11 +112,13 @@ export const JSON_SCHEMA = {
           },
           vietnameseText: {
             type: "string",
-            description: "Vietnamese short paragraph (20-40 words) to translate. Must naturally include the Vietnamese translations corresponding to all words in newVocabulary",
+            description:
+              "Vietnamese short paragraph (20-40 words) to translate. Must naturally include the Vietnamese translations corresponding to all words in newVocabulary",
           },
           englishText: {
             type: "string",
-            description: "English short paragraph (20-40 words). Must naturally include all words from newVocabulary within the paragraph",
+            description:
+              "English short paragraph (20-40 words). Must naturally include all words from newVocabulary within the paragraph",
           },
           newVocabulary: {
             type: "array",
@@ -92,11 +127,13 @@ export const JSON_SCHEMA = {
               properties: {
                 word: {
                   type: "string",
-                  description: "A word from the englishText paragraph that students will learn. If the word is a verb, use the infinitive form (base form), not conjugated forms. For example, if the paragraph contains 'played', use 'play'",
+                  description:
+                    "A word from the englishText paragraph that students will learn. If the word is a verb, use the infinitive form (base form), not conjugated forms. For example, if the paragraph contains 'played', use 'play'",
                 },
                 type: {
                   type: "string",
-                  description: "The type of the word (e.g. noun, verb, adjective, adverb, preposition, conjunction, interjection)",
+                  description:
+                    "The type of the word (e.g. noun, verb, adjective, adverb, preposition, conjunction, interjection)",
                 },
                 translation: {
                   type: "string",
@@ -106,17 +143,27 @@ export const JSON_SCHEMA = {
               required: ["word", "type", "translation"],
               additionalProperties: false,
             },
-            description: "List of 3 new vocabulary words per day. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. Verbs must be in infinitive form (base form)",
+            description:
+              "List of 3 new vocabulary words per day. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. Verbs must be in infinitive form (base form)",
           },
           reviewVocabulary: {
             type: "array",
             items: {
               type: "string",
             },
-            description: "List of old vocabulary to review (3 words per day). If a word is a verb, use the infinitive form (base form), not conjugated forms",
+            description:
+              "List of old vocabulary to review (3 words per day). If a word is a verb, use the infinitive form (base form), not conjugated forms",
           },
         },
-        required: ["day", "goal", "tense", "vietnameseText", "englishText", "newVocabulary", "reviewVocabulary"],
+        required: [
+          "day",
+          "goal",
+          "tense",
+          "vietnameseText",
+          "englishText",
+          "newVocabulary",
+          "reviewVocabulary",
+        ],
         additionalProperties: false,
       },
       description: "List of 15 days challenge",
@@ -135,4 +182,3 @@ export const RESPONSE_FORMAT = {
     schema: JSON_SCHEMA,
   },
 } as const;
-

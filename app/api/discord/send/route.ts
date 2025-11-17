@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
 import type { DiscordMessage } from "@/app/(tools)/translation-challenge/common/discord";
+
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     if (!webhookUrl || !message) {
       return NextResponse.json(
         { success: false, error: "Thiếu webhookUrl hoặc message" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -26,17 +27,20 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      // eslint-disable-next-line no-console
       console.error("Discord webhook error:", {
         status: response.status,
         statusText: response.statusText,
         error: errorText,
       });
+
       return NextResponse.json(
         {
           success: false,
           error: `Discord API error: ${response.status} ${response.statusText}`,
         },
-        { status: response.status }
+        { status: response.status },
       );
     }
 
@@ -45,15 +49,18 @@ export async function POST(request: Request) {
       message: "Đã gửi đến Discord thành công",
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error sending to Discord:", error);
+
     return NextResponse.json(
       {
         success: false,
         error:
-          error instanceof Error ? error.message : "Có lỗi xảy ra khi gửi đến Discord",
+          error instanceof Error
+            ? error.message
+            : "Có lỗi xảy ra khi gửi đến Discord",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
