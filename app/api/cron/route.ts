@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 
+const DAY_NAMES = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"] as const;
+
+function getDayOfWeek(date: Date): typeof DAY_NAMES[number] {
+  return DAY_NAMES[date.getDay()];
+}
+
+function isWeekend(date: Date): boolean {
+  const day = date.getDay();
+  return day === 0 || day === 6;
+}
+
 function calculateWorkingDays(startDate: Date, endDate = new Date()) {
   let count = 0;
   const current = new Date(startDate);
@@ -32,6 +43,18 @@ export async function GET() {
 
     const startDate = new Date("2025-11-13");
     const today = new Date();
+    const todayDayOfWeek = getDayOfWeek(today);
+    
+    // Nếu là Saturday hoặc Sunday thì return luôn không làm gì
+    if (isWeekend(today)) {
+      console.log(`Hôm nay là ${todayDayOfWeek}, không thực hiện cron job`);
+      return NextResponse.json({
+        success: true,
+        message: `Hôm nay là ${todayDayOfWeek}, không thực hiện cron job`,
+        dayOfWeek: todayDayOfWeek,
+      });
+    }
+    
     const workingDays = calculateWorkingDays(startDate, today);
     
     const formatDate = (date: Date) => {
@@ -45,7 +68,7 @@ export async function GET() {
     const message = `📅 **Báo cáo tổng ngày đã học Dịch thuật**
 Ngày bắt đầu học: ${formatDate(startDate)}
 Hôm nay: ${formatDate(today)}
-Tổng số ngày đã học: **${workingDays - 1} ngày** (Chưa tính hôm nay)`;
+Tổng số ngày đã học: **${workingDays} ngày**`;
 
     const response = await fetch(discordWebhookUrl, {
       method: "POST",
