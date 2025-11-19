@@ -27,7 +27,7 @@ export const Sidebar = () => {
     {
       label: "Thử thách dịch thuật",
       href: "/translation-challenge",
-      icon: "heroicons:academic-cap",
+      icon: "heroicons:language",
     },
   ];
 

@@ -80,7 +80,7 @@ export const MyComponent = ({ title }: Props) => {
 - Sử dụng các component có sẵn: Button, Card, Input, Modal, etc.
 
 ### Icon
-- Sử dụng iconify để apply các icon, ưu tiên icon có animation động (nếu có)
+- Sử dụng heroicons của heroui, và import các icon của iconify dạng svg thành file icon.tsx để apply các icon có animation động
 
 ### Ví dụ kết hợp Tailwind và HeroUI:
 
