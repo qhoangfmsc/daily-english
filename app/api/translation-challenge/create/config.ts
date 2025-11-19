@@ -35,7 +35,7 @@ export const LessonSchema = z.object({
       }),
     )
     .describe(
-      "List of at least 4 new vocabulary words. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. MANDATORY: All words at CEFR level B1, B2, C1, or C2 in the paragraph must be included. Verbs must be in infinitive form (base form)",
+      "List of at least 4 and not over 6 new vocabulary words. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. MANDATORY: All words at CEFR level B1, B2, C1, or C2 in the paragraph must be included. Verbs must be in infinitive form (base form)",
     ),
   reviewVocabulary: z
     .array(z.string())
@@ -71,7 +71,7 @@ Lesson Structure:
 - Content must be relevant to the selected topic
 
 Vocabulary Requirements:
-- Select at least 4 new vocabulary words that appear naturally in the English paragraph
+- Select at least 4 and not over 6 new vocabulary words that appear naturally in the English paragraph
 - Each new word must be present in the englishText paragraph
 - The Vietnamese translation of each new word must appear in the vietnameseText paragraph
 - Any word that belongs to CEFR level B1, B2, C1, or C2 MUST be included in newVocabulary (can ignore A1 and A2 level words if it's not relevant to the topic)
@@ -125,7 +125,7 @@ export const JSON_SCHEMA = {
         additionalProperties: false,
       },
       description:
-        "List of at least 4 new vocabulary words. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. MANDATORY: All words at CEFR level B1, B2, C1, or C2 in the paragraph must be included. Verbs must be in infinitive form (base form)",
+        "List of at least 4 and not over 6 new vocabulary words. Each word must appear in the englishText paragraph, and its Vietnamese translation must appear in the vietnameseText paragraph. MANDATORY: All words at CEFR level B1, B2, C1, or C2 in the paragraph must be included. Verbs must be in infinitive form (base form)",
     },
     reviewVocabulary: {
       type: "array",
