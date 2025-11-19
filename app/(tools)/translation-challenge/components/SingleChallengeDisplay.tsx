@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 
@@ -14,6 +16,12 @@ interface SingleChallengeDisplayProps {
 export const SingleChallengeDisplay = ({
   lesson,
 }: SingleChallengeDisplayProps) => {
+  const [showEnglishText, setShowEnglishText] = useState(false);
+
+  const toggleEnglishText = () => {
+    setShowEnglishText(!showEnglishText);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -70,14 +78,24 @@ export const SingleChallengeDisplay = ({
       <div className="flex gap-4">
         <div className="w-1 bg-gradient-to-b from-primary-500 via-primary-400 to-secondary-500 rounded-full flex-shrink-0" />
         <div className="flex-1 flex flex-col gap-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-            Đoạn văn tiếng Anh
-          </h3>
-          <div className="bg-gradient-to-br from-primary-50/50 to-secondary-50/50 p-5 rounded-lg border border-primary-200/50">
-            <p className="text-base leading-relaxed text-default-700">
-              {lesson.englishText}
-            </p>
-          </div>
+          <Button
+            className="w-fit h-auto px-1 py-2 bg-transparent hover:bg-transparent justify-start"
+            variant="light"
+            onPress={toggleEnglishText}
+          >
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                Đoạn văn tiếng Anh {showEnglishText ? "" : "(Click để xem)"}
+              </h3>
+            </div>
+          </Button>
+          {showEnglishText && (
+            <div className="bg-gradient-to-br from-primary-50/50 to-secondary-50/50 p-5 rounded-lg border border-primary-200/50 animate-in fade-in duration-200">
+              <p className="text-base leading-relaxed text-default-700">
+                {lesson.englishText}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

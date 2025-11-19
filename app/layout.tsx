@@ -43,9 +43,9 @@ export default function RootLayout({
         )}
       >
         <Providers>
-          <div className="flex h-screen bg-gradient-to-br from-blue-50 to-violet-100 ">
+          <div className="flex flex-row h-screen bg-gradient-to-br from-blue-50 to-violet-100">
             <Sidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto bg-gradient-to-tl from-gray-100 to-white rounded-l-3xl border-l border-divider">
+            <main className="w-full p-8 overflow-y-auto bg-gradient-to-tl from-gray-100 to-white rounded-l-4xl border-l border-divider shadow-xl">
               <PageTransition>{children}</PageTransition>
             </main>
           </div>

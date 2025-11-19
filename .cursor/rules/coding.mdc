@@ -41,7 +41,6 @@ export const MyComponent = ({ title }: Props) => {
   
   // 2. useState hooks
   const [count, setCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   
   // 3. useEffect hooks
   useEffect(() => {
@@ -56,12 +55,6 @@ export const MyComponent = ({ title }: Props) => {
   // 5. Functions
   const handleClick = () => {
     setCount(count + 1);
-  };
-  
-  const fetchData = async () => {
-    setIsLoading(true);
-    // Fetch logic
-    setIsLoading(false);
   };
   
   // 6. Return statement
@@ -85,6 +78,9 @@ export const MyComponent = ({ title }: Props) => {
 - Sử dụng HeroUI components cho UI elements
 - Import từ `@heroui/react`
 - Sử dụng các component có sẵn: Button, Card, Input, Modal, etc.
+
+### Icon
+- Sử dụng iconify để apply các icon, ưu tiên icon có animation động (nếu có)
 
 ### Ví dụ kết hợp Tailwind và HeroUI:
 
