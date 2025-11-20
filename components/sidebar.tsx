@@ -48,7 +48,7 @@ export const Sidebar = () => {
       )}
     >
       <div
-        className={`flex items-center justify-between ${!isCollapsed ? "border-b border-divider p-6 mx-4 " : ""}`}
+        className={`flex items-center justify-between ${!isCollapsed ? "border-b border-divider py-4 px-2 mx-4 " : ""}`}
       >
         {!isCollapsed && (
           <Link
@@ -57,7 +57,7 @@ export const Sidebar = () => {
           >
             <span
               className={title({ color: "violet" })}
-              style={{ fontSize: "1.7rem", lineHeight: "1.5" }}
+              style={{ fontSize: "1.5rem", lineHeight: "1.5" }}
             >
               Daily English
             </span>
@@ -67,7 +67,6 @@ export const Sidebar = () => {
 
       <Button
         isIconOnly
-        aria-label={isCollapsed ? "Mở rộng sidebar" : "Thu nhỏ sidebar"}
         className={`absolute bottom-20 -right-5 bg-gradient-to-r from-violet-50 to-white rounded-full border-1 border-divider`}
         size="md"
         variant="solid"
